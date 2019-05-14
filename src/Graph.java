@@ -9,7 +9,7 @@ public class Graph {
     //Fields Declaration
     private String name;
     private int id_increment; // creating an id increment variable to provide IDs to the nodes
-    public Vertex[] nodeCollection; // this field will hold a collection graph nodes
+    private Vertex[] nodeCollection; // this field will hold a collection graph nodes
     private int[][] adjacent_matrix; // this field will maintain the integrity of the vertices and edges of the graph.
 
     private int initialSateId;
@@ -83,8 +83,8 @@ public class Graph {
     private void edgeInit() { //edgeInit() must be private to avoid error handling
 
         Scanner scan = new Scanner(System.in);  //instantiate a new Scanner object
-        String getNodeNameFromUser = "";
-        int getNodeCount = 0;
+        String getNodeNameFromUser;
+        int getNodeCount;
 
         System.out.println("\n\n---------------------------------------------------------------------------");
         System.out.println(" The nodes need to be interconnected to each other to finalize the Graph.");
@@ -147,7 +147,6 @@ public class Graph {
 
         displayNodeCollection();
 
-        callProblemDefinition();
     }
 
     //updating the path from one node to another to the Node Collection
@@ -173,57 +172,6 @@ public class Graph {
                     "\t PathCost List: " + nodeCollection[i].getPathCostConnectionList() +
                     "\t Neighbor List: " + nodeCollection[i].getNeighborNameList());
         }
-    }
-
-    public void callProblemDefinition() {
-        Scanner scan = new Scanner(System.in);  //instantiate a new Scanner object
-        String getNodeNameFromUser = "";
-
-        //This loop will extract the node names and check if they exist in the node collection
-        for (int j = 0; j < 1; j++) {
-            System.out.print("Enter the name of initialSate node :=> ");
-            //System.out.print("\tEnter the "+(j+1) +" neighbor node for node (" + nodeCollection[i].getName()+") :=> ");
-            getNodeNameFromUser = scan.next();
-
-
-            //check name in the node collection
-            int counter = 0;
-            while (counter < nodeCollection.length) {
-                //checks if node name exist in the node collection
-                if (nodeCollection[counter].getName().toLowerCase().trim().equals(getNodeNameFromUser.toLowerCase().trim())) {
-                    this.initialSateId = nodeCollection[counter].getId();
-                    System.out.println("Name found in the graph");
-                } else if (counter == (nodeCollection.length - 1) && !(nodeCollection[counter].getName().toLowerCase().trim().equals(getNodeNameFromUser.toLowerCase().trim()))) //if node is not found and we exhaust our Array
-                {
-                    System.out.println("The name was not found in the node collection");
-                }
-                counter++; //Incrementing count
-            }
-        }
-
-        for (int j = 0; j < 1; j++) {
-            System.out.print("Enter the name of goalState node :=> ");
-            //System.out.print("\tEnter the "+(j+1) +" neighbor node for node (" + nodeCollection[i].getName()+") :=> ");
-            getNodeNameFromUser = scan.next();
-
-
-            //check name in the node collection
-            int counter = 0;
-            while (counter < nodeCollection.length) {
-                //checks if node name exist in the node collection
-                if (nodeCollection[counter].getName().toLowerCase().trim().equals(getNodeNameFromUser.toLowerCase().trim())) {
-                    this.goalStateId = nodeCollection[counter].getId();
-                } else if (counter == (nodeCollection.length - 1)) //if node is not found and we exhaust our Array
-                {
-                    System.out.println("The name was not found in the node collection");
-                }
-                counter++; //Incrementing count
-            }
-        }
-
-        if (bfsCompute(initialSateId, goalStateId))
-            System.out.println("Path Found");
-
     }
 
 
@@ -256,123 +204,11 @@ public class Graph {
 
     //----------------------------------------------Search Algorithm Functions--------------------------------------------------------------------
 
-    public boolean bfsCompute(int initialState, int goalState) {
-
-        if (nodeCollection[initialState].equals(goalState)) {
-            System.out.println("Goal Node Found!");
-            System.out.println(nodeCollection[initialState].getName());
-        }
-
-        Queue<Vertex> frontier = new LinkedList<>();
-        ArrayList<Vertex> explored = new ArrayList<>();
-
-        frontier.add(nodeCollection[initialState]);
-        explored.add(nodeCollection[initialState]);
-
-        while (!frontier.isEmpty()) {
-            Vertex current = frontier.remove();
-            if (current.equals(nodeCollection[goalState])) {
-                System.out.println(explored);
-                return true;
-            } else {
-                if (current.getNeighborNameList().isEmpty())
-                    return false;
-                else
-                    frontier.addAll(current.getNeighborNameList());
-            }
-            explored.add(current);
-
-        }
-
-        return false;
-
-    }
-
-//    public void aStarCompute(int initialState, int goalState)
-//    {
-//        MapNode startNode = pointNodeMap.get(start);
-//        MapNode endNode = pointNodeMap.get(goal);
-//
-//        // setup for A*
-//        HashMap<MapNode,MapNode> parentMap = new HashMap<MapNode,MapNode>();
-//        HashSet<MapNode> visited = new HashSet<MapNode>();
-//        Map<MapNode, Double> distances = initializeAllToInfinity();
-//
-//        Queue<MapNode> priorityQueue = initQueue();
-//
-//        //  enque StartNode, with distance 0
-//        startNode.setDistanceToStart(new Double(0));
-//        distances.put(startNode, new Double(0));
-//        priorityQueue.add(startNode);
-//        MapNode current = null;
-//
-//        while (!priorityQueue.isEmpty()) {
-//            current = priorityQueue.remove();
-//
-//            if (!visited.contains(current) ){
-//                visited.add(current);
-//                // if last element in PQ reached
-//                if (current.equals(endNode)) return reconstructPath(parentMap, startNode, endNode, 0);
-//
-//                Set<MapNode> neighbors = getNeighbors(current);
-//                for (MapNode neighbor : neighbors) {
-//                    if (!visited.contains(neighbor) ){
-//
-//                        // calculate predicted distance to the end node
-//                        double predictedDistance = neighbor.getLocation().distance(endNode.getLocation());
-//
-//                        // 1. calculate distance to neighbor. 2. calculate dist from start node
-//                        double neighborDistance = current.calculateDistance(neighbor);
-//                        double totalDistance = current.getDistanceToStart() + neighborDistance + predictedDistance;
-//
-//                        // check if distance smaller
-//                        if(totalDistance < distances.get(neighbor) ){
-//                            // update n's distance
-//                            distances.put(neighbor, totalDistance);
-//                            // used for PriorityQueue
-//                            neighbor.setDistanceToStart(totalDistance);
-//                            neighbor.setPredictedDistance(predictedDistance);
-//                            // set parent
-//                            parentMap.put(neighbor, current);
-//                            // enqueue
-//                            priorityQueue.add(neighbor);
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        return null;
-//    }
 
 
-    public boolean dfsCompute(int initialState, int goalState) {
-        if (nodeCollection[initialState].equals(goalState)) {
-            System.out.println("Goal Node Found!");
-            System.out.println(nodeCollection[initialState].getName());
-        }
-
-        Queue<Vertex> frontier = new LinkedList<>();
-        ArrayList<Vertex> explored = new ArrayList<>();
-
-        frontier.add(nodeCollection[initialState]);
-        explored.add(nodeCollection[initialState]);
-
-        while (!frontier.isEmpty()) {
-            Vertex current = frontier.remove();
-            if (current.equals(nodeCollection[goalState])) {
-                System.out.println(explored);
-                return true;
-            } else {
-                if (current.getNeighborNameList().isEmpty())
-                    return false;
-                else
-                    frontier.addAll(current.getNeighborNameList());
-            }
-            explored.add(current);
-
-            return false;
-        }
-        return false;
-
-    }
 }
+
+
+
+
+
