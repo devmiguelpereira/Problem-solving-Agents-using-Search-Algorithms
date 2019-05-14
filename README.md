@@ -17,8 +17,9 @@ Approach guide line
              :- The Node(Vertex) will posses the following properties:
                   Name, ID, heuristicValue, pathCostConnectionList, neighborNameList
                   
-        -> Graph: a graph can be described in mathematical set notation, a graph is said to be a set of vertices V and a set of edges E.
-             :- Graph(Vertices, Edges)
+        -> Graph: a graph can be described in mathematical set notation, a graph is said to be a set of vertices V 
+              and a set of edges E.
+             :-E.g: Graph(Vertices, Edges)
              :- Implementation
                   There are two ways to maintain the vertices and edges of a graph by using:
                       1. Adjacency List
