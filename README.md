@@ -6,11 +6,12 @@ Approach guide line
   In order to solve this project the following modules or feactures will be essential:
   
   Need:
-        -> Node or Vertex 
-        -> Graph 
-        -> Search Algorithm 
-   
+         Node or Vertex,  
+         Graph, 
+         Search Algorithm;
+         
   Description:
+  
         -> Vertex: is a point where two or more curves, lines, or edges meet.
              :- Create a vertex class will allow the program to create vertices for our graph 
              :- The Node(Vertex) will posses the following properties:
