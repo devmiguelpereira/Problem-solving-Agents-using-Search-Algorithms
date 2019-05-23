@@ -10,7 +10,7 @@ Approach guide line
          Graph, 
          Search Algorithm;
          
-  Description:
+  **Description:**
   
         -> Vertex: is a point where two or more curves, lines, or edges meet.
              :- Create a vertex class will allow the program to create vertices for our graph 
