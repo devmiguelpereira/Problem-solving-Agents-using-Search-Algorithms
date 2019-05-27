@@ -1,41 +1,259 @@
 import java.util.*;
 
-public class Graph {
-    /*
-       In the process of creating a Graph through this Graph blueprint note that in this graph all the
-        edges are bi-directional which by default it is assumed to be an unordered graph or undirected graph
-     */
+class BFS {
 
-    //Fields Declaration
-    private String name;
-    private int id_increment; // creating an id increment variable to provide IDs to the nodes
-    private Vertex[] nodeCollection; // this field will hold a collection graph nodes
-    private int[][] adjacent_matrix; // this field will maintain the integrity of the vertices and edges of the graph.
+    // fields declaration
+    private Queue<Vertex> frontier;
+    private boolean reached = false;
 
-    private int initialSateId;
-    private int goalStateId;
+    //Methods
+
+    //default constructor
+    public BFS() {
+        this.frontier = new LinkedList<>();// instantiating the Queue(frontier)
+    }
+
+    public void bfs(Graph g, Vertex initial, Vertex goal) {
+        List<Vertex> nodeList = g.getNodeCollection();//get all the nodes from the graph
+
+
+        for (int i = initial.getId(); i < nodeList.size(); i++) {
+            if (nodeList.get(i).isVisited() == false) {
+                nodeList.get(i).setVisited(true);
+                bfsInQueue(nodeList.get(i), goal);// adding the nodes to the queue
+            }
+        }
+
+//        for (Vertex n : nodeList) {
+//            if (n.isVisited() == false) {
+//                n.setVisited(true);
+//                bfsInQueue(n);// adding the nodes to the queue
+//            }
+//        }
+    }
+
+    private void bfsInQueue(Vertex root, Vertex goal) {
+        this.frontier.add(root);
+        root.setVisited(true);
+
+
+        while (this.frontier.isEmpty() == false) {
+            Vertex currentNode = this.frontier.remove();
+            if (reached == false)
+                System.out.println("Current Vertex: " + currentNode.getElement().toString());
+            if (currentNode == goal) {
+                System.out.println("Goal state found -> " + currentNode.getElement());
+                reached = true;
+
+            }
+
+            for (Vertex n : currentNode.getNeighbours()) {
+                if (n.isVisited() == false) {
+                    n.setVisited(true);
+                    this.frontier.add(n);
+                }
+            }
+
+        }
+    }
+}
+
+class DFS {
+
+    // fields declaration
+    private Stack<Vertex> frontier;
+    private boolean reached = false;
 
 
     //default constructor
+    public DFS() {
+        this.frontier = new Stack<>(); //instantiating the Stack(frontier)
+    }
+
+    public void dfs(Graph g, Vertex initial, Vertex goal) {
+        List<Vertex> nodeCollection = g.getNodeCollection(); // get all nodes from the graph
+//
+        for (int i = initial.getId(); i < nodeCollection.size(); i++) {
+            if (nodeCollection.get(i).isVisited() == false) {
+                nodeCollection.get(i).setVisited(true);
+                dfsInStack(nodeCollection.get(i), goal);// adding the nodes to the queue
+            }
+        }
+//        for (Vertex n : nodeCollection) {
+//            if (n.isVisited() == false) {
+//                n.setVisited(true);
+//                dfsInStack(n);
+//            }
+//        }
+
+    }
+
+    private void dfsInStack(Vertex root, Vertex goal) {
+        this.frontier.push(root);
+        root.setVisited(true);
+
+        while (this.frontier.isEmpty() == false) {
+            Vertex currentNode = this.frontier.pop();
+            if (reached == false)
+                System.out.println("Current Vertex: " + currentNode.getElement().toString());
+            if (currentNode == goal) {
+                System.out.println("Goal state found -> " + currentNode.getElement());
+                reached = true;
+
+            }
+
+            for (int i = currentNode.getNeighbours().size() - 1; i >= 0; i--) {
+                Vertex n = currentNode.getNeighbours().get(i);
+                if (n.isVisited() == false) {
+                    n.setVisited(true);
+                    this.frontier.push(n);
+                }
+            }
+        }
+    }
+}
+
+class A_star {
+
+        private int[][] adjacent_matrix; // this field will maintain the integrity of the vertices and edges of the graph
+        private int startNodeIndex;
+        private int targetNodeIndex;
+
+
+        private PriorityQueue<Vertex> openSet;
+        private boolean[] closedSet;
+
+
+
+        public A_star(Graph graph){
+            openSet = new PriorityQueue<Vertex>( (Vertex n1, Vertex n2)    -> {
+                if (  n1.gethValue() < n2.gethValue()) {
+                    return -1;
+                }
+
+                else if(n1.gethValue() > n2.gethValue()) {
+                    return 1;
+                }
+                else {
+                    return 0;
+                }
+            });
+
+        }
+
+        public List<Vertex> search(Graph graph,
+                                 int startNodeIndex,
+                                 int targetNodeIndex)
+        {
+
+            List<Vertex> nodeList = graph.getNodeCollection();
+
+            closedSet = new boolean[nodeList.size()];
+
+            Vertex root = nodeList.get(this.startNodeIndex);
+
+
+            List<Vertex> neighbours = null;
+            root.setVisited(true);
+            openSet.add(root);
+            Vertex currentNode;
+
+            List<Vertex> nodeVisited = new ArrayList<>();
+
+            while(true) {
+                // remove from the openSet and add it to the closeSet
+                currentNode = openSet.poll();
+                nodeVisited.add(currentNode);
+
+                // only if current node is empty
+                if (currentNode == null) {
+                    break;
+                }
+
+                // adding to the list
+                this.closedSet[(int) currentNode.getId()-1] = true;
+
+                // found goal state
+                if((int) currentNode.getId() == this.targetNodeIndex ) {
+                    System.out.println("Goal found "+currentNode.getElement()+" = "+this.targetNodeIndex);
+                    break;
+                }
+
+                // if none is true we get the neighbors
+                neighbours = currentNode.getNeighbours();
+
+                for (Vertex n : neighbours) {
+                    updateOpenSetIfNeeded(currentNode, n);
+                }
+            }
+
+            return nodeVisited;
+        }
+
+
+        public void updateOpenSetIfNeeded(Vertex current, Vertex n) {
+
+            //if node is null or is inside the closedSet or
+            // it was visited already so not need to add to openSet
+
+            if (n == null || closedSet[n.getId()]
+                    || n.isVisited())
+                return;
+
+            boolean isOpen = openSet.contains(n);
+
+            if(isOpen == false ) {
+                openSet.add(n);
+            }
+
+
+        }
+
+
+
+
+
+
+}
+
+
+public class Graph {
+
+    // fields declaration
+    private int id_increment; // creating an id increment
+    private List<Vertex> nodeCollection;
+    private int[][] adjacent_matrix; // this field will maintain the integrity of the vertices and edges of the graph.
+    private Vertex initial;
+    private Vertex goal;
+
+    //Methods
+
+    //default constructor
     public Graph() {
-
+        this.nodeCollection = new ArrayList<>();
     }
 
-    //Constructor overloading
-    public Graph(String name) {
-        this.name = name;
+    // Creating getters and setters
+    public void setNodeCollection(List<Vertex> nodeCollection) {
+        this.nodeCollection = nodeCollection;
     }
 
-    public void create() {
-        nodeInit();
+    public List<Vertex> getNodeCollection() {
+        return this.nodeCollection;
     }
 
-    public void display() {
-        displayNodeCollection();
+    //this method sets all visited nodes to false in order to proceed
+    // with the next search algorithm
+    public void restart() {
+        for (Vertex n : nodeCollection) {
+            if (n.isVisited() == true) {
+                n.setVisited(false);
+            }
+        }
     }
 
     //nodeInit() method will create nodes for the current graph
-    private void nodeInit() {
+    public void nodeInit() {
 
         Scanner scan = new Scanner(System.in); //instantiate a new Scanner object
 
@@ -49,14 +267,13 @@ public class Graph {
 
         //need to create a error a miss data handling
         setId_increment(scan.nextByte()); //Prompting the user to provide a integer value
-        nodeCollection = new Vertex[getId_increment()]; // Creating and initializing the array size for the nodeCollection
-        adjacent_matrix = new int[getId_increment()][getId_increment()]; //Creating and initializing the 2D array with a fixed size
+        setAdjacent_matrix(new int[getId_increment()][getId_increment()]); //Creating and initializing the 2D array with a fixed size
 
         setAdjacent_matrix(); //Assigning a default value = -1 for the whole matrix
 
 
         //Loop to prompt the number of nodes wanted by the user
-        for (int i = 0; i < nodeCollection.length; i++) {
+        for (int i = 0; i < this.id_increment; i++) {
 
             System.out.print("Enter a name for node " + (i + 1) + " :=> ");
             String nodeName = scan.next(); //prompting the user to provide a name
@@ -64,15 +281,16 @@ public class Graph {
             System.out.print("Enter its heuristic value :=> ");
             int heuristic = scan.nextByte();//prompting the user to provide the heuristic Value
 
-            nodeCollection[i] = new Vertex(nodeName, i, heuristic); //creating and initializing a new object of type vertex
+            Vertex newVertex = new Vertex(nodeName, i, heuristic); //creating and initializing a new object of type vertex
+            nodeCollection.add(newVertex);
 
         }
 
-        for (int i = 0; i < nodeCollection.length; i++) //Display the created node in the nodeCollection
+        for (int i = 0; i < nodeCollection.size(); i++) //Display the created node in the nodeCollection
         {
             //Printing the successfully created nodes
-            System.out.println("Node Details-> ( Name = " + nodeCollection[i].getName() + "; ID = " + nodeCollection[i].getId() +
-                    "; heuristic = " + nodeCollection[i].getHeuristicValue() + " ) was created successfully");
+            System.out.println("Node Details-> ( Name = " + nodeCollection.get(i).getElement() + "; ID = " + nodeCollection.get(i).getId() +
+                    "; heuristic = " + nodeCollection.get(i).gethValue() + " ) was created successfully");
         }
 
         edgeInit(); //Calling the method to establish the connection between the nodes
@@ -83,8 +301,8 @@ public class Graph {
     private void edgeInit() { //edgeInit() must be private to avoid error handling
 
         Scanner scan = new Scanner(System.in);  //instantiate a new Scanner object
-        String getNodeNameFromUser;
-        int getNodeCount;
+        String getNodeNameFromUser = "";
+        int getNodeCount = 0;
 
         System.out.println("\n\n---------------------------------------------------------------------------");
         System.out.println(" The nodes need to be interconnected to each other to finalize the Graph.");
@@ -93,45 +311,49 @@ public class Graph {
         System.out.println("\t\t#> If you have connected node A to B, you do not need to connect B to A again!");
 
         //prompting the user the number pf nodes to interconnect it with the current node
-        for (int i = 0; i < nodeCollection.length; i++) {
+        for (int i = 0; i < nodeCollection.size(); i++) {
             System.out.print("\nHow many nodes to you want to connect with node " +
-                    "(" + nodeCollection[i].getName() + ") :=> ");
+                    "(" + nodeCollection.get(i).getElement() + ") :=> ");
             getNodeCount = scan.nextInt();
 
 
             //This loop will extract the node names and check if they exist in the node collection
             for (int j = 0; j < getNodeCount; j++) {
-                System.out.print("Enter the name of the neighbor node number " + (j + 1) + " for node (" + nodeCollection[i].getName() + ") :=> ");
+                System.out.print("Enter the name of the neighbor node number " + (j + 1) + " for node (" + nodeCollection.get(i).getElement() + ") :=> ");
                 //System.out.print("\tEnter the "+(j+1) +" neighbor node for node (" + nodeCollection[i].getName()+") :=> ");
                 getNodeNameFromUser = scan.next();
 
 
                 //check name in the node collection
                 int counter = 0;
-                while (counter < nodeCollection.length) {
+                int pathCost = 0;
+                while (counter < nodeCollection.size()) {
                     //checks if node name exist in the node collection
-                    if (nodeCollection[counter].getName().toLowerCase().trim().equals(getNodeNameFromUser.toLowerCase().trim())) {
+                    if (nodeCollection.get(counter).getElement().toLowerCase().trim().equals(getNodeNameFromUser.toLowerCase().trim())) {
                         //checks if the node has established a connection already
-                        if (adjacent_matrix[i][counter] > -1 && (adjacent_matrix[counter][i] > -1)) {
-                            System.out.println("\t\t" + nodeCollection[i].getName() + " is already connected to " +
-                                    nodeCollection[counter].getName());
+                        if (getAdjacent_matrix()[i][counter] > -1 && (getAdjacent_matrix()[counter][i] > -1)) {
+                            System.out.println("\t\t" + nodeCollection.get(i).getElement() + " is already connected to " +
+                                    nodeCollection.get(counter).getElement());
                             break;
                         }
                         // Create a new connection for a given node
                         else {
                             System.out.print("\nWhat is the path cost for this connection :=> ");
-                            adjacent_matrix[i][counter] = scan.nextShort(); //assigning the path cost to the 2D Matrix
-                            adjacent_matrix[counter][i] = adjacent_matrix[i][counter]; //assign the path cost, creating an undirected graph
-                            System.out.println(nodeCollection[i].getName() + " connected to " +
-                                    nodeCollection[counter].getName() + " successfully!");
+                            pathCost = scan.nextShort();
+                            getAdjacent_matrix()[i][counter] = pathCost + nodeCollection.get(counter).gethValue(); //assigning the path cost to the 2D Matrix + the heuristic value
+                            getAdjacent_matrix()[counter][i] = pathCost + nodeCollection.get(i).gethValue(); //assigning the path cost to the 2D Matrix + the heuristic value
+                            System.out.println(nodeCollection.get(i).getElement() + " connected to " +
+                                    nodeCollection.get(counter).getElement() + " successfully!");
+
+                            nodeCollection.get(i).addNeighbour(nodeCollection.get(counter));
 
                             //Printing the adjacent matrix for input visualization
-                            for (int[] element : adjacent_matrix) {
+                            for (int[] element : getAdjacent_matrix()) {
                                 System.out.println(Arrays.toString(element));
                             }
                             break;
                         }
-                    } else if (counter == (nodeCollection.length - 1))//if node is not found and we exhaust our Array
+                    } else if (counter == (nodeCollection.size() - 1))//if node is not found and we exhaust our Array
                     {
                         System.out.println("The name was not found in the node collection");
                     }
@@ -142,48 +364,79 @@ public class Graph {
 
         System.out.println("The graph have been created successfully!");
 
-        //updating the path from one node to another to the Node Collection
-        updatePathCostList(adjacent_matrix);
 
         displayNodeCollection();
+        setInitial_GoalState();
+    }
+
+    private void setInitial_GoalState()
+
+    {
+        Scanner scan = new Scanner(System.in);  //instantiate a new Scanner object
+        String getNodeNameFromUser = "";
+
+        //This loop will extract the node names and check if they exist in the node collection
+        for (int j = 0; j < 1; j++) {
+            System.out.print("\n\nEnter the name of initialSate node :=> ");
+            //System.out.print("\tEnter the "+(j+1) +" neighbor node for node (" + nodeCollection[i].getName()+") :=> ");
+            getNodeNameFromUser = scan.next();
+
+
+            //check name in the node collection
+            int counter = 0;
+            while (counter < nodeCollection.size()) {
+                //checks if node name exist in the node collection
+                if (nodeCollection.get(counter).getElement().toLowerCase().trim().equals(getNodeNameFromUser.toLowerCase().trim())) {
+                    this.initial = nodeCollection.get(counter);
+                    System.out.println("Name found in the graph");
+                } else if (counter == (nodeCollection.size() - 1) && !(nodeCollection.get(counter).getElement().toLowerCase().trim().equals(getNodeNameFromUser.toLowerCase().trim()))) //if node is not found and we exhaust our Array
+                {
+                    System.out.println("The name was not found in the node collection");
+                }
+                counter++; //Incrementing count
+            }
+        }
+
+        for (int j = 0; j < 1; j++) {
+            System.out.print("\nEnter the name of goalState node :=> ");
+            //System.out.print("\tEnter the "+(j+1) +" neighbor node for node (" + nodeCollection[i].getName()+") :=> ");
+            getNodeNameFromUser = scan.next();
+
+
+            //check name in the node collection
+            int counter = 0;
+            while (counter < nodeCollection.size()) {
+                //checks if node name exist in the node collection
+                if (nodeCollection.get(counter).getElement().toLowerCase().trim().equals(getNodeNameFromUser.toLowerCase().trim())) {
+                    this.goal = nodeCollection.get(counter);
+                } else if (counter == (nodeCollection.size() - 1)) //if node is not found and we exhaust our Array
+                {
+                    System.out.println("The name was not found in the node collection");
+                }
+                counter++; //Incrementing count
+            }
+        }
+
 
     }
 
-    //updating the path from one node to another to the Node Collection
-    // Adding the names to the neighboring list variable
-    private void updatePathCostList(int[][] matrix) {
-
-        for (int row = 0; row < matrix.length; row++) {
-            for (int column = 0; column < matrix[row].length; column++) {
-                if (matrix[row][column] > -1) {
-                    nodeCollection[row].setNeighborNameList(nodeCollection[column]);
-                    nodeCollection[row].setPathCostConnectionList(matrix[row][column]);
-                }
+    private void displayNodeCollection() {
+        for (int i = 0; i < nodeCollection.size(); i++) {
+            System.out.println("Node name: " + nodeCollection.get(i).getElement() +
+                    "\t Id: " + nodeCollection.get(i).getId() +
+                    "\t h(n) = " + nodeCollection.get(i).gethValue() +
+                    "\t Neighbor List: "
+            );
+            for (Vertex v : nodeCollection.get(i).getNeighbours()
+            ) {
+                System.out.println(v.getElement());
             }
         }
     }
 
-
-    private void displayNodeCollection() {
-        for (int i = 0; i < nodeCollection.length; i++) {
-            System.out.println("Node name: " + nodeCollection[i].getName() +
-                    "\t Id: " + nodeCollection[i].getId() +
-                    "\t h(n) = " + nodeCollection[i].getHeuristicValue() +
-                    "\t PathCost List: " + nodeCollection[i].getPathCostConnectionList() +
-                    "\t Neighbor List: " + nodeCollection[i].getNeighborNameList());
-        }
-    }
-
-
     //Getters
     private int getId_increment() {
         return id_increment;
-    }
-
-
-    //getting the name of the created graph which is optional
-    public String getName() {
-        return name;
     }
 
 
@@ -196,16 +449,26 @@ public class Graph {
     private void setAdjacent_matrix() {
         //If value is greater than -1 it means that there is a connection established
         //      between two nodes
-        for (int[] matrix : this.adjacent_matrix) {
+        for (int[] matrix : this.getAdjacent_matrix()) {
             Arrays.fill(matrix, -1);
         }
     }
 
+    public int[][] getAdjacent_matrix() {
+        return adjacent_matrix;
+    }
 
-    //----------------------------------------------Search Algorithm Functions--------------------------------------------------------------------
+    public void setAdjacent_matrix(int[][] adjacent_matrix) {
+        this.adjacent_matrix = adjacent_matrix;
+    }
 
+    public Vertex getInitial() {
+        return initial;
+    }
 
-
+    public Vertex getGoal() {
+        return goal;
+    }
 }
 
 

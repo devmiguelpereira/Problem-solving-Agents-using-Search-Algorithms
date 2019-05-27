@@ -1,67 +1,74 @@
 import java.util.ArrayList;
+import java.util.List;
 
 public class Vertex {
 
-    //defining the fields or properties of our vertex
-    private String name; // this field will give a name to the vertex
-    private int id; // this field will give an identifier value to the vertex
-    private int heuristicValue; // this field will hold the heuristic value of the vertex
-    // this field will keep track of the path cost to the neighbor vertices of the current vertex
-    private ArrayList pathCostConnectionList = new ArrayList();
-    //this field will store the neighbor vertices name
-    private ArrayList<Vertex> neighborNameList = new ArrayList();
+    //Declaration of the private fields
+    private String element;
+    private boolean visited;
+    private int id;
+    private List<Vertex> neighbours;
+    private int hValue;
 
 
-    //Creating a default constructor that will accept two parameters
 
-//    public Vertex(String name, int id)
-//    {
-//        this.name = name;
-//        this.id = id;
-//    }
 
-    //constructor overloading
-    public Vertex(String name, int id, int heuristicValue)
-    {
-        this.name = name;
+
+    //Methods
+
+    //default Constructor
+    public Vertex(String e, int id, int hValue){
+        this.setElement(e);
         this.id = id;
-        this.heuristicValue = heuristicValue;
+        this.hValue = hValue;
+        this.visited = false;
+        this.neighbours = new ArrayList<>();
+
     }
 
-    //defining getters for data retrieval
-    public String getName()
-    {
-        return name;
+    public boolean isVisited(){
+        return this.visited;
     }
+
+    public void addNeighbour(Vertex n)
+    {
+        this.neighbours.add(n);
+    }
+
+    //Creating getters and setters for the private fields
+
+    public String getElement() {
+        return element;
+    }
+
+    public void setElement(String element) {
+        this.element = element;
+    }
+
+    public List<Vertex> getNeighbours() {
+        return neighbours;
+    }
+
+    public void setNeighbours(List<Vertex> neighbours) {
+        this.neighbours = neighbours;
+    }
+
+    public void setVisited(boolean status)
+    {
+        this.visited = status;
+    }
+
+
 
     public int getId()
     {
         return id;
     }
 
-    public int getHeuristicValue() {
-        return heuristicValue;
+
+    public int gethValue() {
+        return hValue;
     }
 
-    public ArrayList getPathCostConnectionList()
-    {
-        return pathCostConnectionList;
-    }
 
-    public ArrayList getNeighborNameList(){return neighborNameList;}
-
-    //defining setters
-    //this method will set the pathCost of the neighbor vertices of the current Vertex
-
-    public void setPathCostConnectionList(int pathCost)
-    {
-        this.pathCostConnectionList.add(pathCost);
-
-    }
-
-    //adding neighbor vertices to the List
-    public void setNeighborNameList(Vertex vertex)
-    {
-        this.neighborNameList.add(vertex);
-    }
 }
